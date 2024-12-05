@@ -14,7 +14,7 @@ class weatherService {
                 throw new Error(`Address with name ${address} not found.`);
             }
 
-            const temperatureCelsius = (data.main.temp - 273.15).toFixed(1) + "ºC";
+            const temperatureCelsius = (data.main.temp - 273.15).toFixed(2) + "ºC";
 
             const homeDirectory = process.env.HOME;
             if (!homeDirectory) {
