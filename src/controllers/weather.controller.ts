@@ -1,35 +1,21 @@
 import weatherService from "../services/weather.service";
-import fs from "fs";
-import path from "path";
+import FileLogger from "../utils/fileLogger.utils";
 
 class WeatherController {
-    private logPath = path.join(process.env.HOME as string, "weather_errors.log");
-
-    private logError(message: string) {
-        const timestamp = new Date().toISOString();
-        fs.appendFile(this.logPath, `[${timestamp}] ${message}\n`, (err) => {
-            if (err) console.error("Error writing to log file:", err);
-        });
-    }
 
     async index(address: string): Promise<void> {
         try {
             if (!address) {
-                const errorMessage = "Address is required.";
-                this.logError(errorMessage);
-                throw new Error(errorMessage);
+                await FileLogger.logError(".weather_log.txt", "Address is required.");
             }
 
-            await weatherService.index(address);
+            const result = await weatherService.index(address);
+            await FileLogger.storeResult(".temp_value", result);
 
         } catch (error) {
-            const errorMessage = error instanceof Error ?
-                error.message :
-                "An unknown error occurred.";
-            this.logError(errorMessage);
-            throw new Error("Internal server error.");
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            await FileLogger.logError(".weather_log.txt", errorMessage);
         }
-
     }
 }
 
